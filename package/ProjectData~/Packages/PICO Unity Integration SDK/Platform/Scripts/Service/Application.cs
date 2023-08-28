@@ -13,6 +13,7 @@ PICO Technology Co., Ltd.
 using System;
 using Pico.Platform.Models;
 using UnityEngine;
+using SystemInfo = Pico.Platform.Models.SystemInfo;
 
 namespace Pico.Platform
 {
@@ -131,6 +132,22 @@ namespace Pico.Platform
             }
 
             return new LaunchDetails(CLIB.ppf_ApplicationLifecycle_GetLaunchDetails());
+        }
+        
+        /// <summary>
+        /// Gets the device's system information synchronously. 
+        /// </summary>
+        /// <returns>A structure contains the device's system information, including the device's system version, language code,
+        /// country/region code, product name, and more.</returns>
+        public static SystemInfo GetSystemInfo()
+        {
+            if (!CoreService.Initialized)
+            {
+                Debug.LogError(CoreService.NotInitializedError);
+                return null;
+            }
+
+            return new SystemInfo(CLIB.ppf_Application_GetSystemInfo());
         }
 
         /// <summary>

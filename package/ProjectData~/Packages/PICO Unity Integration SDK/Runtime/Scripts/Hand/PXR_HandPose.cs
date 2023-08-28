@@ -47,13 +47,13 @@ namespace Unity.XR.PXR
             switch (trackType)
             {
                 case TrackType.Any:
-                    poseStateActive = (leftShapesActive|rightShapesActive) & (leftBonesActive|rightBonesActive) & (leftTransActive|rightTransActive);
+                    poseStateActive = (leftShapesActive | rightShapesActive) & (leftBonesActive | rightBonesActive) & (leftTransActive | rightTransActive);
                     break;
                 case TrackType.Left:
-                    poseStateActive = leftShapesActive&leftBonesActive&leftTransActive;
+                    poseStateActive = leftShapesActive & leftBonesActive & leftTransActive;
                     break;
                 case TrackType.Right:
-                    poseStateActive = rightShapesActive&rightBonesActive&rightTransActive;
+                    poseStateActive = rightShapesActive & rightBonesActive & rightTransActive;
                     break;
                 default:
                     break;
@@ -110,7 +110,7 @@ namespace Unity.XR.PXR
         {
             shapesHoldDuration = config.shapesRecognizer.holdDuration;
 
-            bones= config.bonesRecognizer.Bones;
+            bones = config.bonesRecognizer.Bones;
             bonesHoldDuration = config.bonesRecognizer.holdDuration;
 
             transTrackAxis = config.transRecognizer.trackAxis;
@@ -143,13 +143,13 @@ namespace Unity.XR.PXR
                         rightWirstRot = rightHandJointLocations.jointLocations[i].pose.Orientation.ToQuat();
                     }
                 }
-                rightShapesHold = ShapesRecognizerCheck(rightJointPos, rightWirstRot*Vector3.left, rightWirstRot*Vector3.back, rightWirstRot*Vector3.up);
+                rightShapesHold = ShapesRecognizerCheck(rightJointPos, rightWirstRot * Vector3.left, rightWirstRot * Vector3.back, rightWirstRot * Vector3.up);
                 rightShapesActive = HoldCheck(rightShapesHold, shapesHoldDuration, rightShapesActive, ref rightShapesHoldTime);
 
                 rightBonesHold = BonesCheck(HandType.HandRight);
                 rightBonesActive = HoldCheck(rightBonesHold, bonesHoldDuration, rightBonesActive, ref rightBonesHoldTime);
 
-                rightTransHold = TransCheck(rightWirstPos, rightWirstRot, HMDpose, rightTransHold);
+                rightTransHold = TransCheck(TrackType.Right, rightWirstPos, rightWirstRot, HMDpose, rightTransHold);
                 rightTransActive = HoldCheck(rightTransHold, transHoldDuration, rightTransActive, ref rightTransHoldTime);
             }
 
@@ -165,17 +165,17 @@ namespace Unity.XR.PXR
 
                     if (i == (int)HandJoint.JointWrist)
                     {
-                        leftWirstPos =  leftHandJointLocations.jointLocations[i].pose.Position.ToVector3();
+                        leftWirstPos = leftHandJointLocations.jointLocations[i].pose.Position.ToVector3();
                         leftWirstRot = leftHandJointLocations.jointLocations[i].pose.Orientation.ToQuat();
                     }
                 }
-                leftShapesHold = ShapesRecognizerCheck(leftJointPos, leftWirstRot*Vector3.right, leftWirstRot*Vector3.forward, leftWirstRot*Vector3.up);
+                leftShapesHold = ShapesRecognizerCheck(leftJointPos, leftWirstRot * Vector3.right, leftWirstRot * Vector3.forward, leftWirstRot * Vector3.up);
                 leftShapesActive = HoldCheck(leftShapesHold, shapesHoldDuration, leftShapesActive, ref leftShapesHoldTime);
 
                 leftBonesHold = BonesCheck(HandType.HandLeft);
                 leftBonesActive = HoldCheck(leftBonesHold, bonesHoldDuration, leftBonesActive, ref leftBonesHoldTime);
 
-                leftTransHold = TransCheck(leftWirstPos, leftWirstRot, HMDpose, leftTransHold);
+                leftTransHold = TransCheck(TrackType.Left, leftWirstPos, leftWirstRot, HMDpose, leftTransHold);
                 leftTransActive = HoldCheck(leftTransHold, transHoldDuration, leftTransActive, ref leftTransHoldTime);
             }
 
@@ -454,7 +454,7 @@ namespace Unity.XR.PXR
         {
             for (int i = 0; i < bones.Count; i++)
             {
-                float distance = Vector3.Distance(GetHandJoint(handType, bones[i].A_Bone), GetHandJoint(handType, bones[i].B_Bone));
+                float distance = Vector3.Distance(GetHandJoint(handType, bones[i].bone1), GetHandJoint(handType, bones[i].bone2));
                 if (distance < bones[i].distance - bones[i].thresholdWidth / 2)
                 {
                     bones[i].activeState = true;
@@ -505,44 +505,43 @@ namespace Unity.XR.PXR
         private Vector3 palmPos;
         private Vector3 palmAxis;
         private Vector3 targetPos;
-        private bool TransCheck(Vector3 wristPos, Quaternion wristRot, Vector3 headPose, bool holdState)
+        private bool TransCheck(TrackType trackType, Vector3 wristPos, Quaternion wristRot, Vector3 headPose, bool holdState)
         {
-            GetTrackAxis(wristPos, wristRot);
-            GetProjectedTarget(headPose, wristRot);
+            GetTrackAxis(trackType, wristRot);
+            GetProjectedTarget(headPose, wristRot, wristPos);
 
             float errorAngle = Vector3.Angle(palmAxis, targetPos);
 
-            if (errorAngle <  transAngleThreshold - transThresholdWidth / 2)
+            if (errorAngle < transAngleThreshold - transThresholdWidth / 2)
             {
                 holdState = true;
             }
-            if (errorAngle >  transAngleThreshold + transThresholdWidth / 2)
+            if (errorAngle > transAngleThreshold + transThresholdWidth / 2)
             {
                 holdState = false;
             }
             return holdState;
         }
-        private Vector3 GetTrackAxis(Vector3 wristPos, Quaternion wristRot)
+        private Vector3 GetTrackAxis(TrackType trackType, Quaternion wristRot)
         {
-            palmPos = wristRot * (trackType == TrackType.Right ? new Vector3(0.08f, 0, 0) : new Vector3(-0.08f, 0, 0)) + wristPos;
-            float lrAxis = trackType == TrackType.Right ? 1 : -1;
             switch (transTrackAxis)
             {
                 case TransRecognizer.TrackAxis.Fingers:
-                    palmAxis = wristRot * new Vector3(lrAxis, 0, 0);
+                    palmAxis = wristRot * Vector3.forward;
                     break;
                 case TransRecognizer.TrackAxis.Palm:
-                    palmAxis = wristRot * new Vector3(0, -lrAxis, 0);
+                    palmAxis = wristRot * Vector3.down;
                     break;
                 case TransRecognizer.TrackAxis.Thumb:
-                    palmAxis = wristRot * new Vector3(0, 0, lrAxis);
+                    palmAxis = trackType == TrackType.Right ? wristRot * Vector3.left : wristRot * Vector3.right;
                     break;
             }
 
             return palmAxis;
         }
-        private Vector3 GetProjectedTarget(Vector3 headPose, Quaternion wristRot)
+        private Vector3 GetProjectedTarget(Vector3 headPose, Quaternion wristRot, Vector3 wristPos)
         {
+            palmPos = wristRot * (trackType == TrackType.Right ? new Vector3(0.08f, 0, 0) : new Vector3(-0.08f, 0, 0)) + wristPos;
             switch (transTrackTarget)
             {
                 case TransRecognizer.TrackTarget.TowardsFace:

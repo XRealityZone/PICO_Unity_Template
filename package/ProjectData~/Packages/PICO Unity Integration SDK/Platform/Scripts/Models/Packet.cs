@@ -15,6 +15,9 @@ namespace Pico.Platform.Models
     using System;
     using System.Runtime.InteropServices;
 
+    /// <summary>
+    /// The information about the message packet.
+    /// </summary>
     public sealed class Packet : IDisposable
     {
         /// The size of the message packet. 

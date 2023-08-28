@@ -32,7 +32,8 @@ namespace Unity.XR.PXR
         [SerializeField] public bool entitlementCheckSimulation;
         [SerializeField] public bool startTimeEntitlementCheck;
         [SerializeField] public string appID;
-
+        [SerializeField] public bool useHighlight = true;
+        
         public List<string> deviceSN = new List<string>();
 
         private static PXR_PlatformSetting instance;

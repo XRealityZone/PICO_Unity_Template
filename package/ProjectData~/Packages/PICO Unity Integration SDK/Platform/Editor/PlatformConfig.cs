@@ -34,17 +34,12 @@ namespace Pico.Platform.Editor
         static string[] strBuildSettingText = {"Recommend Settings [?]", "推荐设置"};
         static string[] strBuildSettingHelpText = {"Recommended project settings for PXR SDK", "推荐项目设置"};
         static string[] strPlatformBuildText = {"Set Platform To Android", "设置目标平台为Android"};
-        static string[] strUnityVersionLimit = {$"Unity Editor Version ≥ {Conf.minEditorVersion}", $"Unity Editor版本不小于{Conf.minEditorVersion}"};
+        static string[] strUnityVersionLimit = {$"Unity Editor Version ≥ {EditorConf.minEditorVersion}", $"Unity Editor版本不小于{EditorConf.minEditorVersion}"};
         static string[] strOrientationBuildText = {"Set Orientation To LandscapeLeft", "设置屏幕方向为水平"};
-        static string[] strMinApiLevel = {$"Android Min API Level ≥ {Conf.minSdkLevel}", $"Android最小API不低于{Conf.minSdkLevel}"};
+        static string[] strMinApiLevel = {$"Android Min API Level ≥ {EditorConf.minSdkLevel}", $"Android最小API不低于{EditorConf.minSdkLevel}"};
         static string[] strIgnoreButtonText = {"Ask me later", "稍后询问"};
         static string[] strApplyButtonText = {"Apply", "应用"};
-
-        private class Conf
-        {
-            public static int minSdkLevel = 29;
-            public static string minEditorVersion = "2020";
-        }
+        static string[] strHighlightText = {"Use Highlight", "开启高光时刻"};
 
         private class Res
         {
@@ -138,12 +133,12 @@ namespace Pico.Platform.Editor
 
             public override ConfigStatus GetStatus()
             {
-                return Gs.minimumApiLevel >= (AndroidSdkVersions) Conf.minSdkLevel ? ConfigStatus.Correct : ConfigStatus.Fix;
+                return Gs.minimumApiLevel >= (AndroidSdkVersions) EditorConf.minSdkLevel ? ConfigStatus.Correct : ConfigStatus.Fix;
             }
 
             public override void Fix()
             {
-                Gs.minimumApiLevel = (AndroidSdkVersions) Conf.minSdkLevel;
+                Gs.minimumApiLevel = (AndroidSdkVersions) EditorConf.minSdkLevel;
             }
         }
 
@@ -156,7 +151,7 @@ namespace Pico.Platform.Editor
 
             public override ConfigStatus GetStatus()
             {
-                return String.Compare(Application.unityVersion, Conf.minEditorVersion, StringComparison.Ordinal) >= 0 ? ConfigStatus.Hide : ConfigStatus.Wrong;
+                return String.Compare(Application.unityVersion, EditorConf.minEditorVersion, StringComparison.Ordinal) >= 0 ? ConfigStatus.Hide : ConfigStatus.Wrong;
             }
 
             public override void Fix()
@@ -169,6 +164,12 @@ namespace Pico.Platform.Editor
         {
             get { return PicoGs.appId; }
             set { PicoGs.appId = value; }
+        }
+        
+        public static bool useHighlight
+        {
+            get { return PicoGs.useHighlight; }
+            set { PicoGs.useHighlight = value; }
         }
 
         bool enableEC
@@ -264,6 +265,13 @@ namespace Pico.Platform.Editor
                     GUI.enabled = true;
                 }
             }
+            //Highlight设置
+            {
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label(strHighlightText[(int) language]);
+                useHighlight = EditorGUILayout.Toggle(useHighlight, GUILayout.Width(frameWidth));
+                EditorGUILayout.EndHorizontal();
+            }
             //Recommend Settings
             {
                 GUILayout.Space(5);
@@ -322,14 +330,6 @@ namespace Pico.Platform.Editor
             }
             //按钮区域
             {
-                GUILayout.Space(10);
-                GUILayout.BeginHorizontal();
-                GUILayout.FlexibleSpace();
-                if (GUILayout.Button(strIgnoreButtonText[(int) language], GUILayout.Width(130)))
-                {
-                    this.Close();
-                }
-
                 var hasSomethingToFix = false;
                 foreach (var field in configFields)
                 {
@@ -340,17 +340,28 @@ namespace Pico.Platform.Editor
                     }
                 }
 
-                GUI.enabled = hasSomethingToFix;
-                if (GUILayout.Button(strApplyButtonText[(int) language], GUILayout.Width(130)))
+                if (hasSomethingToFix)
                 {
-                    this.ApplyRecommendConfig();
+                    GUILayout.Space(10);
+                    GUILayout.BeginHorizontal();
+                    GUILayout.FlexibleSpace();
+                    if (GUILayout.Button(strIgnoreButtonText[(int) language], GUILayout.Width(130)))
+                    {
+                        this.Close();
+                    }
+
+                    GUI.enabled = hasSomethingToFix;
+                    if (GUILayout.Button(strApplyButtonText[(int) language], GUILayout.Width(130)))
+                    {
+                        this.ApplyRecommendConfig();
+                    }
+
+                    GUI.enabled = true;
+
+                    GUILayout.FlexibleSpace();
+                    GUILayout.EndHorizontal();
+                    GUILayout.FlexibleSpace();
                 }
-
-                GUI.enabled = true;
-
-                GUILayout.FlexibleSpace();
-                GUILayout.EndHorizontal();
-                GUILayout.FlexibleSpace();
             }
 
             GUILayout.EndVertical();

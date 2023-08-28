@@ -14,7 +14,6 @@ using System;
 
 namespace Pico.Platform.Models
 {
-
     /// <summary>
     /// The add-on that can be purchased in the app.
     ///
@@ -46,24 +45,22 @@ namespace Pico.Platform.Models
         /// The type of the add-on 
         public readonly AddonsType AddonsType;
 
-        /// The period type for the subscription add-on.
+        /// The period type for the subscription add-on. Only valid when it's a subscription add-on.
         public readonly PeriodType PeriodType;
 
-        /// The trial period unit for the subscription add-on.
+        /// The trial period unit for the subscription add-on. Only valid when it's a subscription add-on.
         public readonly PeriodType TrialPeriodUnit;
 
-        /// The trial period value for the subscription add-on.
+        /// The trial period value for the subscription add-on. Only valid when it's a subscription add-on.
         public readonly int TrialPeriodValue;
 
-        /** The original price of the add-on. This field means the price
-         * without discount.
-         */
+        /// The original price of the add-on, which means the price without discount.
         public readonly string OriginalPrice;
 
-        /// The unique identifier of a subscription period.
+        /// The order ID of the subscription. Only valid when it's a subscription add-on.
         public readonly string OuterId;
 
-        /// Whether the subscription is auto renewed.
+        /// Whether the subscription is auto renewed. Only valid when it's a subscription add-on.
         public readonly bool IsContinuous;
 
         public Product(IntPtr o)
@@ -109,10 +106,10 @@ namespace Pico.Platform.Models
     /// </summary>
     public class Purchase
     {
-        /// The expiration time. Only valid when it's subscription type.
+        /// The expiration time. Only valid when it's a subscription add-on.
         public readonly DateTime ExpirationTime;
 
-        /// The grant time. Only valid when it's subscription type.
+        /// The grant time. Only valid when it's a subscription add-on.
         public readonly DateTime GrantTime;
 
         /// The ID of the purchase order. 
@@ -127,20 +124,23 @@ namespace Pico.Platform.Models
         /// The type of the purchased add-on.
         public readonly AddonsType AddonsType;
 
-        /// The outer id of the purchased add-on.
+        /// The order ID of the subscription. Only valid when it's a subscription add-on.
         public readonly string OuterId;
 
-        /// The current period type of subscription. Only valid when it's subscription.
+        /// The current period type of subscription. Only valid when it's a subscription add-on.
         public readonly PeriodType CurrentPeriodType;
 
-        /// The next period type of subscription. Only valid when it's subscription.
+        /// The next period type of subscription. Only valid when it's a subscription add-on.
         public readonly PeriodType NextPeriodType;
 
-        /// The next pay time of subscription. Only valid when it's subscription.
+        /// The next pay time of subscription. Only valid when it's a subscription add-on.
         public readonly DateTime NextPayTime;
 
         /// The discount info of the purchase.
         public readonly DiscountType DiscountType;
+
+        /// The comment for the order. Developers can add order comment to a purchase. See also: \ref IAPService.LaunchCheckoutFlow3
+        public readonly string OrderComment;
 
         public Purchase(IntPtr o)
         {
@@ -155,6 +155,7 @@ namespace Pico.Platform.Models
             NextPeriodType = CLIB.ppf_Purchase_GetNextPeriodType(o);
             NextPayTime = TimeUtil.MilliSecondsToDateTime(CLIB.ppf_Purchase_GetNextPayTime(o));
             DiscountType = CLIB.ppf_Purchase_GetDiscountType(o);
+            OrderComment = CLIB.ppf_Purchase_GetOrderComment(o);
         }
     }
 
@@ -184,7 +185,7 @@ namespace Pico.Platform.Models
         /// The SKU of the add-on. SKU is the add-on's unique identifier.
         public readonly string SKU;
 
-        /// The order ID of the subscription.
+        /// The order ID of the subscription. Only valid when it's a subscription add-on.
         public readonly string OuterId;
 
         /// The start time of the subscription.

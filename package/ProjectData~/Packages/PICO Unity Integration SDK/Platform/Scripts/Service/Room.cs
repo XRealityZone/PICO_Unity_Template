@@ -264,7 +264,9 @@ namespace Pico.Platform
 
         /// <summary>Gets a list of members the user can invite to the room.
         /// These members are drawn from the user's friends list and recently
-        /// encountered list, and filtered based on relevance and interests.</summary>
+        /// encountered list, and filtered based on relevance and interests.
+        /// @note: Only applicable to private rooms and named rooms.
+        /// </summary>
         ///
         /// <param name="roomOptions">Additional configuration for this request.
         /// If you pass `null`, the response will return code `0`.</param>

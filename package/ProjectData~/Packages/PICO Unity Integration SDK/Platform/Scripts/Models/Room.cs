@@ -43,9 +43,12 @@ namespace Pico.Platform.Models
         public readonly UserList UsersOptional;
         /// Room name. 
         public readonly string Name;
+        /// The Num of the users in room.
+        public readonly uint PlayerNumber;
 
         public Room(IntPtr o)
         {
+            PlayerNumber = CLIB.ppf_Room_GetPlayerNumber(o);
             DataStore = CLIB.DataStoreFromNative(CLIB.ppf_Room_GetDataStore(o));
             Description = CLIB.ppf_Room_GetDescription(o);
             RoomId = CLIB.ppf_Room_GetID(o);

@@ -90,7 +90,7 @@ namespace Unity.XR.PXR
             Any,
             Open,
             Close,
-            Custom
+            //Custom
         }
 
         public enum Curl
@@ -98,7 +98,7 @@ namespace Unity.XR.PXR
             Any,
             Open,
             Close,
-            Custom
+            //Custom
         }
 
         public enum Abduction
@@ -180,9 +180,12 @@ namespace Unity.XR.PXR
         [Serializable]
         public class BonesGroup
         {
-            public HandBones A_Bone = HandBones.Wrist;
-            public HandBones B_Bone = HandBones.Wrist;
+            [LabelAttribute("Joint 1")]
+            public HandBones bone1 = HandBones.Wrist;
+            [LabelAttribute("Joint 2")]
+            public HandBones bone2 = HandBones.Wrist;
             public float distance = 0.025f;
+            [LabelAttribute("Margin")]
             public float thresholdWidth = 0.003f;
 
             [HideInInspector]
@@ -258,6 +261,14 @@ namespace Unity.XR.PXR
     }
 
     public class DisplayOnly : PropertyAttribute { }
+    public class LabelAttribute : PropertyAttribute
+    {
+        public string name;
+        public LabelAttribute(string name)
+        {
+            this.name = name;
+        }
+    }
 }
 
 

@@ -17,9 +17,9 @@ namespace Pico.Platform.Models
 {
     /// <summary>
     /// The User info structure.
-    /// The basic info fields, such as `DisplayName` and `ImageUrl`, are always valid. 
-    /// The presence info is valid only when you call presence-related APIs.
-    /// See \ref UserService.GetLoggedInUser 
+    /// Basic fields, such as `DisplayName` and `ImageUrl`, are always valid. 
+    /// Some fields, such as presence-related fields, are valid only when you call presence-related APIs.
+    /// See also: \ref UserService.GetLoggedInUser 
     /// </summary>
     public class User
     {
@@ -41,7 +41,7 @@ namespace Pico.Platform.Models
         /// User's gender.
         public readonly Gender Gender;
 
-        /// User's presence info which is configured on the PICO Developer Platform.
+        /// User's presence information.
         public readonly string Presence;
 
         /// The deeplink message. 
@@ -56,13 +56,16 @@ namespace Pico.Platform.Models
         /// The match session ID which identifies a competition. 
         public readonly string PresenceMatchSessionId;
 
-        /// User's extra presence data. 
+        /// User's extra presence information. 
         public readonly string PresenceExtra;
 
-        /// The invite token. 
+        /// Whether the user can be joined by others.
+        public readonly bool PresenceIsJoinable;
+
+        /// The user's invite token. 
         public readonly string InviteToken;
 
-        /// User's registration country/region. It is a country/region code. 
+        /// The user's registration country/region. Returns a country/region code. 
         public readonly string StoreRegion;
 
         public User(IntPtr obj)
@@ -79,6 +82,7 @@ namespace Pico.Platform.Models
             PresenceLobbySessionId = CLIB.ppf_User_GetPresenceLobbySessionId(obj);
             PresenceMatchSessionId = CLIB.ppf_User_GetPresenceMatchSessionId(obj);
             PresenceExtra = CLIB.ppf_User_GetPresenceExtra(obj);
+            PresenceIsJoinable = CLIB.ppf_User_GetPresenceIsJoinable(obj);
             SmallImageUrl = CLIB.ppf_User_GetSmallImageUrl(obj);
             InviteToken = CLIB.ppf_User_GetInviteToken(obj);
             StoreRegion = CLIB.ppf_User_GetStoreRegion(obj);
@@ -103,6 +107,21 @@ namespace Pico.Platform.Models
         }
     }
 
+    /// <summary>
+    /// The user's organization ID.
+    /// </summary>
+    public class OrgScopedID
+    {
+        /// <summary>
+        /// The organization ID.
+        /// </summary>
+        public readonly string ID;
+
+        public OrgScopedID(IntPtr o)
+        {
+            ID = CLIB.ppf_OrgScopedID_GetID(o);
+        }
+    }
 
     /// <summary>
     /// Indicates whether the friend request is canceled or successfully sent.
@@ -161,12 +180,31 @@ namespace Pico.Platform.Models
     }
 
 
+    /// <summary>
+    /// User permissions list.
+    /// </summary>
     public static class Permissions
     {
+        /// <summary>
+        /// The permission to get the user's registration information, including the user's nickname, gender, profile photo, and more.
+        /// </summary>
         public const string UserInfo = "user_info";
+        /// <summary>
+        /// The permission to get users' friend relations.
+        /// </summary>
         public const string FriendRelation = "friend_relation";
+        /// <summary>
+        /// The permission to get the user's information, including the user's gender, birthday, stature, weight, and more, on the PICO Fitness app.
+        /// </summary>
         public const string SportsUserInfo = "sports_userinfo";
+        /// <summary>
+        /// The permission to get users' exercise data from the PICO Fitness app.
+        /// </summary>
         public const string SportsSummaryData = "sports_summarydata";
+        /// <summary>
+        /// The permission to capture or record the screen, which is required when using the highlight service.
+        /// </summary>
+        public const string RecordHighlight = "record_highlight";
     }
 
 

@@ -48,7 +48,7 @@ namespace Unity.XR.PXR
 
         public Vector3 ToVector3()
         {
-            return new Vector3() { x = x, y = y, z = z };
+            return new Vector3() { x = x, y = y, z = -z };
         }
     }
 
@@ -61,7 +61,7 @@ namespace Unity.XR.PXR
 
         public Quaternion ToQuat()
         {
-            return new Quaternion() { x = x, y = y, z = z, w = w };
+            return new Quaternion() { x = x, y = y, z = -z, w = -w };
         }
     }
     
@@ -83,54 +83,6 @@ namespace Unity.XR.PXR
             return string.Format("Orientation :{0}, {1}, {2}, {3}  Position: {4}, {5}, {6}",
                 Orientation.x, Orientation.y, Orientation.z, Orientation.w,
                 Position.x, Position.y, Position.z);
-        }
-
-        public void ToHandPosef(HandType hand)
-        {
-            Vector3 pos = Position.ToVector3();
-            Quaternion rot = Orientation.ToQuat();
-
-            if (hand == HandType.HandLeft)
-            {
-                rot = new Quaternion(rot.x, rot.y, -rot.z, -rot.w) * new Quaternion(0.5f, -0.5f, 0.5f, -0.5f);
-            }
-            else
-            {
-                rot = new Quaternion(rot.x, rot.y, -rot.z, -rot.w) * new Quaternion(-0.5f, -0.5f, -0.5f, -0.5f);
-            }
-
-            Position.x = pos.x;
-            Position.y = pos.y;
-            Position.z = -pos.z;
-            Orientation.x = rot.x;
-            Orientation.y = rot.y;
-            Orientation.z = rot.z;
-            Orientation.w = rot.w;
-        }
-
-        public void ToJointPosef(HandType hand)
-        {
-            Vector3 pos = Position.ToVector3();
-            Quaternion rot = Orientation.ToQuat();
-
-            if (hand == HandType.HandLeft)
-            {
-                Orientation.x = -rot.y;
-                Orientation.y = rot.z;
-                Orientation.z = rot.x;
-                Orientation.w = -rot.w;
-            }
-            else
-            {
-                Orientation.x = rot.y;
-                Orientation.y = -rot.z;
-                Orientation.z = rot.x;
-                Orientation.w = -rot.w;
-            }
-
-            Position.x = pos.x;
-            Position.y = pos.y;
-            Position.z = -pos.z;
         }
     }
     
@@ -185,19 +137,19 @@ namespace Unity.XR.PXR
         /// <summary>
         /// The strength of index finger's pinch.
         /// </summary>
-        public float pinchStrengthIndex;
+        private float pinchStrengthIndex;
         /// <summary>
         /// The strength of middle finger's pinch.
         /// </summary>
-        public float pinchStrengthMiddle;
+        private float pinchStrengthMiddle;
         /// <summary>
         /// The strength of ring finger's pinch.
         /// </summary>
-        public float pinchStrengthRing;
+        private float pinchStrengthRing;
         /// <summary>
         /// The strength of little finger's pinch.
         /// </summary>
-        public float pinchStrengthLittle;
+        private float pinchStrengthLittle;
         /// <summary>
         /// The strength of ray's touch.
         /// </summary>
@@ -363,30 +315,11 @@ namespace Unity.XR.PXR
         ///     public bool RayTouched { get; private set; }
         ///     // The strength of ray touch.
         ///     public float TouchStrengthRay { get; private set; }
-        ///
-        ///     // Whether the index finger pinches.
-        ///     public bool IndexPinching { get; private set; }
-        ///     // Whether the middle finger pinches.
-        ///     public bool MiddlePinching { get; private set; }
-        ///     // Whether the ring finger pinches.
-        ///     public bool RingPinching { get; private set; }
-        ///     // Whether the little finger pinches.
-        ///     public bool LittlePinching { get; private set; }
-        ///
-        ///     // The strength of index finger's pinch.
-        ///     public float PinchStrengthIndex { get; private set; }
-        ///     // The strength of middle finger's pinch.
-        ///     public float PinchStrengthMiddle { get; private set; }
-        ///     // The strength of ring finger's pinch.
-        ///     public float PinchStrengthRing { get; private set; }
-        ///     // The strength of little finger's pinch.
-        ///     public float PinchStrengthLittle { get; private set; }
-        /// }
         /// ```
         /// </param>
         /// <returns>
-        /// `true`: success
-        /// `false`: failure
+        /// * `true`: success
+        /// * `false`: failure
         /// </returns>
         public static bool GetAimState(HandType hand, ref HandAimState aimState)
         {
@@ -401,8 +334,8 @@ namespace Unity.XR.PXR
         /// </param>
         /// <param name="jointLocations">Contains data about the locations of the joints in the specified hand.</param>
         /// <returns>
-        /// `true`: success
-        /// `false`: failure
+        /// * `true`: success
+        /// * `false`: failure
         /// </returns>
         public static bool GetJointLocations(HandType hand, ref HandJointLocations jointLocations)
         {

@@ -40,7 +40,11 @@ namespace Unity.XR.PXR
     /// Value range: [0,5]. `0` indicates a low battery, which can affect the tracking accuracy.
     /// </summary>
     public delegate void FitnessBandElectricQuantityCallBack(int trackerID, int battery);
-
+    /// <summary>
+    /// A callback function that notifies the change of loglevel state.
+    /// </summary>
+    public delegate void LoglevelChangedCallBack(int value);
+    
     public class PXR_System
     {
         /// <summary>
@@ -245,6 +249,33 @@ namespace Unity.XR.PXR
         /// </returns>
         public static int SetFaceTrackingStatus(PxrFtLipsyncValue value) {
             return PXR_Plugin.System.UPxr_SetFaceTrackingStatus(value);
+        }
+
+        /// <summary>
+        /// Sets a tracking origin mode for the app.
+        /// When the user moves in the virtual scene, the system tracks and calculates the user's positional changes based on the origin.
+        /// </summary>
+        /// <param name="originMode">Selects a tracking origin mode from the following:
+        /// * `TrackingOriginModeFlags.Device`: Device mode. The system sets the device's initial position as the origin. The device's height from the floor is not calculated.
+        /// * `TrackingOriginModeFlags.Floor`: Floor mode. The system sets an origin based on the device's original position and the device's height from the floor. 
+        /// </param>
+        public static void SetTrackingOrigin(PxrTrackingOrigin originMode)
+        {
+            PXR_Plugin.System.UPxr_SetTrackingOrigin(originMode);
+        }
+
+        /// <summary>
+        /// Gets the tracking origin mode of the app.
+        /// </summary>
+        /// <param name="originMode">Returns the app's tracking origin mode:
+        /// * `TrackingOriginModeFlags.Device`: Device mode
+        /// * `TrackingOriginModeFlags.Floor`: Floor mode
+        /// For the description of each mode, refer to `SetTrackingOrigin`.
+        /// </param>
+        public static void GetTrackingOrigin(out PxrTrackingOrigin originMode)
+        {
+            originMode = PxrTrackingOrigin.Eye;
+            PXR_Plugin.System.UPxr_GetTrackingOrigin(ref originMode);
         }
     }
 }

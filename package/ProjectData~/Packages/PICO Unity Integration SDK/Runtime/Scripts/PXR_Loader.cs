@@ -30,6 +30,10 @@ using Unity.XR.PXR.Input;
 using UnityEditor;
 #endif
 
+#if XR_HANDS
+using UnityEngine.XR.Hands;
+#endif
+
 
 namespace Unity.XR.PXR
 {
@@ -59,7 +63,9 @@ namespace Unity.XR.PXR
     {
         private static List<XRDisplaySubsystemDescriptor> displaySubsystemDescriptors = new List<XRDisplaySubsystemDescriptor>();
         private static List<XRInputSubsystemDescriptor> inputSubsystemDescriptors = new List<XRInputSubsystemDescriptor>();
-
+#if XR_HANDS
+        private static List<XRHandSubsystemDescriptor> handSubsystemDescriptors = new List<XRHandSubsystemDescriptor>();
+#endif
         public delegate Quaternion ConvertRotationWith2VectorDelegate(Vector3 from, Vector3 to);
 
         public XRDisplaySubsystem displaySubsystem
@@ -95,7 +101,9 @@ namespace Unity.XR.PXR
                     systemDisplayFrequency = settings.GetSystemDisplayFrequency(),
                     optimizeBufferDiscards = settings.GetOptimizeBufferDiscards(),
                     enableAppSpaceWarp = Convert.ToUInt16(settings.enableAppSpaceWarp),                    
-                    enableSubsampled = Convert.ToUInt16(PXR_ProjectSetting.GetProjectConfig().enableSubsampled)
+                    enableSubsampled = Convert.ToUInt16(PXR_ProjectSetting.GetProjectConfig().enableSubsampled),
+                    lateLatchingDebug = Convert.ToUInt16(PXR_ProjectSetting.GetProjectConfig().latelatchingDebug),
+                    enableStageMode = Convert.ToUInt16(PXR_ProjectSetting.GetProjectConfig().stageMode)
                 };
 
                 PXR_Plugin.System.UPxr_Construct(ConvertRotationWith2Vector);
@@ -104,6 +112,7 @@ namespace Unity.XR.PXR
                 PXR_Plugin.System.UPxr_SetFitnessBandNumberOfConnectionsCallBack(FitnessBandNumberOfConnectionsFunction);
                 PXR_Plugin.System.UPxr_SetFitnessBandElectricQuantityCallBack(FitnessBandElectricQuantityFunction);
                 PXR_Plugin.System.UPxr_SetFitnessBandAbnormalCalibrationDataCallBack(FitnessBandAbnormalCalibrationDataFunction);
+                PXR_Plugin.System.UPxr_SetLoglevelChangedCallBack(LoglevelChangedFunction);
                 PXR_Plugin.System.UPxr_SetUserDefinedSettings(userDefinedSettings);
 
             }
@@ -111,6 +120,10 @@ namespace Unity.XR.PXR
 
             CreateSubsystem<XRDisplaySubsystemDescriptor, XRDisplaySubsystem>(displaySubsystemDescriptors, "PICO Display");
             CreateSubsystem<XRInputSubsystemDescriptor, XRInputSubsystem>(inputSubsystemDescriptors, "PICO Input");
+
+#if XR_HANDS
+            CreateSubsystem<XRHandSubsystemDescriptor, XRHandSubsystem>(handSubsystemDescriptors, "PICO Hands");
+#endif
 
             if (displaySubsystem == null && inputSubsystem == null)
             {
@@ -128,7 +141,15 @@ namespace Unity.XR.PXR
             {
                 PXR_Plugin.System.UPxr_InitializeFocusCallback();
             }
- 
+
+#if XR_HANDS
+            var handSubSystem = GetLoadedSubsystem<XRHandSubsystem>();
+            if (handSubSystem == null)
+            {
+                Debug.LogError("PXRLog Failed to load XRHandSubsystem.");
+            }
+#endif
+
             return displaySubsystem != null;
         }
 
@@ -136,6 +157,10 @@ namespace Unity.XR.PXR
         {
             StartSubsystem<XRDisplaySubsystem>();
             StartSubsystem<XRInputSubsystem>();
+
+#if XR_HANDS
+            StartSubsystem<XRHandSubsystem>();
+#endif
 
             return true;
         }
@@ -145,6 +170,10 @@ namespace Unity.XR.PXR
             StopSubsystem<XRDisplaySubsystem>();
             StopSubsystem<XRInputSubsystem>();
 
+#if XR_HANDS
+            StopSubsystem<XRHandSubsystem>();
+#endif
+
             return true;
         }
 
@@ -152,6 +181,10 @@ namespace Unity.XR.PXR
         {
             DestroySubsystem<XRDisplaySubsystem>();
             DestroySubsystem<XRInputSubsystem>();
+
+#if XR_HANDS
+            DestroySubsystem<XRHandSubsystem>();
+#endif
 
             PXR_Plugin.System.UPxr_DeinitializeFocusCallback();
             return true;
@@ -208,6 +241,14 @@ namespace Unity.XR.PXR
             }
         }
 
+        [MonoPInvokeCallback(typeof(LoglevelChangedCallBack))]
+        static void LoglevelChangedFunction(int value)
+        {
+            if (PXR_Plugin.System.LoglevelChangedChanged != null)
+            {
+                PXR_Plugin.System.LoglevelChangedChanged(value);
+            }
+        }
 
         public PXR_Settings GetSettings()
         {

@@ -45,7 +45,7 @@ namespace Pico.Platform.Models
     /// </summary>
     public class RtcAudioFrame
     {
-        /// The channel of the audio frame.
+        /// The type of the audio channel for this audio frame.
         public readonly RtcAudioChannel Channel;
 
         /// The data pointer of the audio frame.
@@ -336,9 +336,21 @@ namespace Pico.Platform.Models
     /// </summary>
     public class RtcMediaDeviceChangeInfo
     {
+        /// <summary>
+        /// Device ID.
+        /// </summary>
         public readonly string DeviceId;
+        /// <summary>
+        /// Device type.
+        /// </summary>
         public readonly RtcMediaDeviceType DeviceType;
+        /// <summary>
+        /// Device state.
+        /// </summary>
         public readonly RtcMediaDeviceState DeviceState;
+        /// <summary>
+        /// Device error.
+        /// </summary>
         public readonly RtcMediaDeviceError DeviceError;
 
         public RtcMediaDeviceChangeInfo(IntPtr o)

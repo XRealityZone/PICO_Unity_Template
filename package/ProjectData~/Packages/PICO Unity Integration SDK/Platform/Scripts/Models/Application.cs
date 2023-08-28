@@ -72,6 +72,40 @@ namespace Pico.Platform.Models
     }
 
     /// <summary>
+    /// The system information of the device.
+    /// </summary>
+    public class SystemInfo
+    {
+        /** The current ROM version (i.e., system version) of the device, such as "5.5.0" and "5.6.0".*/
+        public readonly string ROMVersion;
+
+        /** The locale of the device. Locale is combined with language and country code. Such as "zh-CN" and "en-US".*/
+        public readonly string Locale;
+
+        /** The product name of the device, such as "PICO 4".*/
+        public readonly string ProductName;
+
+        /** Whether the device's ROM is CN version. PICO provides different ROM versions in different countries/regions.*/
+        public readonly bool IsCnDevice;
+
+        /** The Matrix's version name. Matrix is a system app which provides system functions for platform services.*/
+        public readonly string MatrixVersionName;
+        
+        /** The Matrix's version code. */
+        public readonly long MatrixVersionCode;
+
+        public SystemInfo(IntPtr o)
+        {
+            ROMVersion = CLIB.ppf_SystemInfo_GetROMVersion(o);
+            Locale = CLIB.ppf_SystemInfo_GetLocale(o);
+            ProductName = CLIB.ppf_SystemInfo_GetProductName(o);
+            IsCnDevice = CLIB.ppf_SystemInfo_GetIsCnDevice(o);
+            MatrixVersionName = CLIB.ppf_SystemInfo_GetMatrixVersionName(o);
+            MatrixVersionCode = CLIB.ppf_SystemInfo_GetMatrixVersionCode(o);
+        }
+    }
+
+    /// <summary>
     /// App's version info.
     /// </summary>
     public class ApplicationVersion

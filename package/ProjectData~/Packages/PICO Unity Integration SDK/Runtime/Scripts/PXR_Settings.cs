@@ -76,7 +76,8 @@ namespace Unity.XR.PXR
 		{
             settings = this;
 		}
-#else
+        
+#elif UNITY_EDITOR
         private void OnValidate()
         {
             if (systemSplashScreen == null)
