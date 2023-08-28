@@ -4,7 +4,7 @@ This is a template for creating a PICO Unity project. It is based on the Unity 2
 
 Use this template to skip project 
 
-Current version uses the PICO Intergration SDK v2.1.5.
+Current version uses the PICO Intergration SDK v2.3.0.
 
 # How To Use
 
