@@ -4,13 +4,13 @@
   "version": "1.0.0",
   "type": "template",
   "host": "hub",
-  "unity": "2021.3",
+  "unity": "2022.8",
   "description": "This is a PICO VR project that uses Unity's built-in renderer.",
   "dependencies": {
-    "com.unity.collab-proxy": "1.13.5",
+    "com.unity.collab-proxy": "2.0.7",
     "com.unity.feature.development": "1.0.1",
     "com.unity.textmeshpro": "3.0.6",
-    "com.unity.timeline": "1.6.2",
+    "com.unity.timeline": "1.7.5",
     "com.unity.visualscripting": "1.7.6",
     "com.unity.ugui": "1.0.0"
   },
@@ -21,7 +21,7 @@
     "footprint": "7c027c7feb748167de2c78a47623ed3e9282bca7"
   },
   "repository": {
-    "url": "https://github.com/xr-bro/PICO_Unity_Template.git",
+    "url": "git@github.com:XRealityZone/PICO_Unity_Template.git",
     "type": "git",
     "revision": "42c551896396d50ffeafce36830bcf5367e74449"
   }
